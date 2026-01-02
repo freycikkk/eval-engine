@@ -1,0 +1,25 @@
+{
+  "name": "@freycikkk/eval-engine",
+  "version": "1.0.0",
+  "author": {
+    "name": "freycikkk",
+    "github": "https://github.com/freycikkk/eval-engine"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc && npm pack",
+    "pack": "npm run build"
+  },
+  "dependencies": {
+    "discord-hybrid-sharding": "^3.0.1",
+    "discord.js": "^14.25.1"
+  }
+}
