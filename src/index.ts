@@ -4,17 +4,16 @@ import { Client } from 'discord.js';
 import { js } from './commands/js.js';
 import { rtt } from './commands/rtt.js';
 import { cat } from './commands/cat.js';
-import { jsi } from './commands/jsi.js';
 import { curl } from './commands/curl.js';
 import { shard } from './commands/shard.js';
 import { shell } from './commands/shell.js';
 import { Default } from './commands/default.js';
 import { Commands } from './readonly/Commands.js';
+import { detectShard } from './utils/detectShardType.js';
 
 import type { Snowflake, Message } from 'discord.js';
 import type { EngineClient } from './interface/EngineClient.js';
 import type { EvalEngineOptions } from './interface/EvalEngineOptions.js';
-import { detectShard } from './utils/detectShardType.js';
 
 class EvalEngine {
   public owners: Snowflake[];
@@ -34,6 +33,8 @@ class EvalEngine {
 
     this.owners = options.owners;
     this.process = [process];
+    if (client.isReady()) this.options.secrets?.push(client.token);
+    else client.once('ready', (c) => this.options.secrets?.push(c.token));
   }
 
   public async run(message: Message) {
@@ -66,14 +67,6 @@ class EvalEngine {
         case 'js':
         case 'javascript':
           await js(this.client, input, {
-            message,
-            secrets: this.options.secrets!
-          });
-          break;
-
-        case 'jsi':
-        case 'javascript_inspect':
-          await jsi(this.client, input, {
             message,
             secrets: this.options.secrets!
           });

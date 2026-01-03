@@ -21,7 +21,8 @@ export const js = async (client: Client, rawCode: string | undefined, ctx: Conte
   const code = parsed?.content ?? rawCode;
 
   try {
-    const result = await eval(code);
+    let result = await eval(code);
+    if (typeof result === 'function') result = result.toString();
     const sanitized = sanitize(result, ctx.secrets, client.token);
 
     const output =

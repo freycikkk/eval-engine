@@ -13,7 +13,7 @@ export const rtt = async (client: Client, ctx: Context) => {
 
   const latencies: number[] = [];
 
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 0; i <= 4; i++) {
     const latency = await measureGatewayRTT();
 
     if (latency !== null) {
@@ -23,7 +23,7 @@ export const rtt = async (client: Client, ctx: Context) => {
       output += `\nReading ${i}: Failed`;
     }
 
-    if (i < 5) {
+    if (i < 4) {
       await statusMsg.edit(output);
     }
   }

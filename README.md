@@ -1,5 +1,3 @@
-<!-- @format -->
-
 # EvalEngine
 
 A powerful **owner-only evaluation engine for Discord bots** built on `discord.js`.
@@ -98,7 +96,6 @@ client.login('BOT_TOKEN');
 | Engine  | Description               |
 | ------- | ------------------------- |
 | `js`    | JavaScript evaluation     |
-| `jsi`   | JavaScript inspect        |
 | `shell` | Shell / PowerShell / Bash |
 | `curl`  | HTTP requests             |
 | `cat`   | File inspection           |
