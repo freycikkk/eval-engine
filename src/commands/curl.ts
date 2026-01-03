@@ -67,7 +67,7 @@ export const curl = async (client: Client, input: string | undefined, ctx: Conte
     const pages = Chunking(output);
     const paginator = new Paginator(message, pages, 'js');
     await paginator.init();
-  } catch (err) {
+  } catch (err: unknown) {
     const pages = Chunking(util.inspect(err, { depth: Infinity }));
     const paginator = new Paginator(message, pages, 'js');
     await paginator.init();

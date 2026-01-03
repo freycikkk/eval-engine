@@ -44,7 +44,7 @@ export const cat = async (client: Client, filePath: string | undefined, ctx: Con
     const pages = Chunking(output);
     const paginator = new Paginator(message, pages, 'js');
     await paginator.init();
-  } catch (err) {
+  } catch (err: unknown) {
     const pages = Chunking(util.inspect(err, { depth: Infinity }));
     const paginator = new Paginator(message, pages, 'js');
     await paginator.init();

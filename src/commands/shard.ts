@@ -90,7 +90,7 @@ export const shard = async (client: Client, rawCode: string | undefined, ctx: Co
     const pages = Chunking(text);
     const paginator = new Paginator(message, pages, 'js');
     await paginator.init();
-  } catch (err) {
+  } catch (err: unknown) {
     const sanitized = sanitize(err, ctx.secrets, client.token);
     const output = typeof sanitized === 'string' ? sanitized : util.inspect(sanitized, { depth: Infinity });
 

@@ -19,10 +19,7 @@ class EvalEngine {
   public owners: Snowflake[];
   public process: NodeJS.Process[];
 
-  constructor(
-    public client: Client,
-    public options: EvalEngineOptions
-  ) {
+  constructor(public client: Client, public options: EvalEngineOptions) {
     if (!(client instanceof Client))
       throw new TypeError('[ EvalEngine ] Client must be an instance of Discord.js Client');
     if (!Array.isArray(options.owners)) throw new TypeError('[ EvalEngine ] Owners must be an array of Snowflake IDs');
@@ -60,7 +57,7 @@ class EvalEngine {
     if (!engine) {
       await Default(this.client, {
         message,
-        secrets: this.options.secrets!
+        secrets: this.options.secrets
       });
       return;
     }
@@ -71,7 +68,7 @@ class EvalEngine {
         case 'javascript':
           await js(this.client, input, {
             message,
-            secrets: this.options.secrets!
+            secrets: this.options.secrets
           });
           break;
 
@@ -84,21 +81,21 @@ class EvalEngine {
         case 'exec':
           await shell(this.client, input, {
             message,
-            secrets: this.options.secrets!
+            secrets: this.options.secrets
           });
           break;
 
         case 'curl':
           await curl(this.client, input, {
             message,
-            secrets: this.options.secrets!
+            secrets: this.options.secrets
           });
           break;
 
         case 'cat':
           await cat(this.client, input, {
             message,
-            secrets: this.options.secrets!
+            secrets: this.options.secrets
           });
           break;
 
@@ -106,14 +103,14 @@ class EvalEngine {
         case 'cluster':
           await shard(this.client, input, {
             message,
-            secrets: this.options.secrets!
+            secrets: this.options.secrets
           });
           break;
 
         case 'rtt':
           await rtt(this.client, {
             message,
-            secrets: this.options.secrets!
+            secrets: this.options.secrets
           });
           break;
 
@@ -123,7 +120,7 @@ class EvalEngine {
           }
           break;
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('[ EvalEngine ] ', err);
       await message.reply('[ EvalEngine ] Eval execution failed.');
     }

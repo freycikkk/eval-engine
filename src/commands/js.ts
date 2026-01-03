@@ -21,7 +21,7 @@ export const js = async (client: Client, rawCode: string | undefined, ctx: Conte
   const code = parsed?.content ?? rawCode;
 
   try {
-    let result = await eval(code);
+    let result: unknown = await eval(code);
     if (typeof result === 'function') result = result.toString();
     const sanitized = sanitize(result, ctx.secrets, client.token);
 
@@ -38,7 +38,7 @@ export const js = async (client: Client, rawCode: string | undefined, ctx: Conte
     const pages = Chunking(output);
     const paginator = new Paginator(message, pages, 'js');
     await paginator.init();
-  } catch (err) {
+  } catch (err: unknown) {
     const pages = Chunking(util.inspect(err, { depth: Infinity }));
     const paginator = new Paginator(message, pages, 'js');
     await paginator.init();
