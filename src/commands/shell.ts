@@ -1,147 +1,79 @@
 /** @format */
 
-import path from 'node:path';
 import { spawn } from 'node:child_process';
-import { Chunking } from '../utils/Chunking.js';
-import { sanitize } from '../utils/sanitize.js';
 import { CodeBlock } from '../utils/codeBlock.js';
 import { Paginator } from '../utils/paginator.js';
 
 import type { Client } from 'discord.js';
 import type { Context } from '../interface/Context.js';
 
-const UPDATE_INTERVAL = 800;
-const HARD_TIMEOUT = 3 * 60 * 1000;
-const MAX_BUFFER = 50_000;
+const HARD_TIMEOUT = 60_000;
 
-function sleep(ms: number) {
-  return new Promise<void>((r) => setTimeout(r, ms));
-}
-
-function getShell() {
-  if (process.platform === 'win32') {
-    return {
-      cmd: 'powershell.exe',
-      args: [
-        '-NoProfile',
-        '-NonInteractive',
-        '-Command',
-        '& { ' +
-          '$ErrorActionPreference = "Continue"; ' +
-          'try { ' +
-          'iex $args[0]; ' +
-          'exit $LASTEXITCODE ' +
-          '} catch { ' +
-          'Write-Error $_; ' +
-          'exit 1 ' +
-          '} ' +
-          '}'
-      ]
-    };
-  }
-
-  return {
-    cmd: process.env.SHELL || '/bin/bash',
-    args: ['-c']
-  };
-}
-
-function normalizePaths(text: string): string {
-  return text.replace(/([A-Za-z]:\\[^\s\n\r]+|\/[^\s\n\r]+)/g, (p) => path.basename(p));
-}
-
-function normalizeWhitespace(text: string): string {
-  return text.replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
-}
-
-export const shell = async (client: Client, rawCode: string | undefined, ctx: Context) => {
+export const shell = async (_client: Client, rawCode: string | undefined, ctx: Context) => {
   const { message } = ctx;
 
   if (!rawCode) {
-    await message.reply('[ EvalEngine ] Missing command to execute.');
+    await message.reply({ content: '[ EvalEngine ] Missing command.' });
+    return;
+  }
+
+  const shellPath = process.env.SHELL || (process.platform === 'win32' ? 'powershell' : null);
+
+  if (!shellPath) {
+    await message.reply('Sorry, we are not able to find your default shell.\nPlease set `process.env.SHELL`.');
     return;
   }
 
   const parsed = CodeBlock.parse(rawCode);
-  const input = (parsed?.content ?? rawCode).trim();
+  let code = parsed?.content ?? rawCode;
 
-  let buffer = `$ ${input}\n\n`;
-  let sent = '';
-  let exited = false;
-
-  const append = (text: string) => {
-    buffer += text;
-    if (buffer.length > MAX_BUFFER) {
-      buffer = buffer.slice(-MAX_BUFFER);
-    }
-  };
-
-  const pages = Chunking(buffer);
-
-  const { cmd, args } = getShell();
-
-  const proc = spawn(cmd, [...args, input], {
-    stdio: ['pipe', 'pipe', 'pipe'],
-    windowsHide: true,
-    env: {
-      ...process.env,
-      TERM: 'dumb'
-    }
-  });
-
-  proc.stdin.end();
-
-  const paginator = new Paginator(message, pages, 'sh', 120_000, () => {
-    if (!proc.killed) {
-      proc.kill(process.platform === 'win32' ? 'SIGTERM' : 'SIGKILL');
-      exited = true;
-      append('\n[status] process killed by user\n');
-    }
-  });
-
-  await paginator.init();
-
-  proc.stdout.on('data', (d) => append(d.toString()));
-  proc.stderr.on('data', (d) => append(`[stderr] ${d.toString()}`));
-
-  proc.on('error', (err) => {
-    exited = true;
-    append(`[error] ${err.message}\n`);
-    paginator.markProcessKilled();
-  });
-
-  proc.on('exit', (code, signal) => {
-    exited = true;
-    append(`\n[status] process exited with ${signal ?? `code ${code}`}\n`);
-    paginator.markProcessKilled();
-  });
-
-  const killer = setTimeout(() => {
-    if (!exited) {
-      proc.kill();
-      exited = true;
-      append('\n[status] process killed by timeout\n');
-      paginator.markProcessKilled();
-    }
-  }, HARD_TIMEOUT);
-
-  async function updateLoop(): Promise<void> {
-    const cleaned = normalizeWhitespace(normalizePaths(buffer));
-    const sanitized = String(sanitize(cleaned, ctx.secrets, client.token));
-
-    if (sanitized !== sent || exited) {
-      sent = sanitized;
-      paginator.updatePages(Chunking(sanitized));
-    }
-
-    if (exited) {
-      clearTimeout(killer);
-      return;
-    }
-
-    await sleep(UPDATE_INTERVAL);
-    return updateLoop();
+  if (process.platform === 'win32') {
+    code = code
+      .replace(/\bls\b/g, 'Get-ChildItem')
+      .replace(/\bcat\b/g, 'Get-Content')
+      .replace(/\bpwd\b/g, 'Get-Location');
   }
 
-  await updateLoop();
+  const paginator = new Paginator(message, undefined, 'sh', 1900, () => kill(proc));
+  await paginator.init();
+
+  paginator.append(`$ ${code}\n`);
+
+  const proc = spawn(
+    shellPath,
+    process.platform === 'win32' ? ['-NoProfile', '-NonInteractive', '-Command', code] : ['-c', code],
+    { stdio: 'pipe' }
+  );
+
+  const timeout = setTimeout(() => {
+    kill(proc);
+  }, HARD_TIMEOUT);
+
+  proc.stdout.on('data', (d) => {
+    paginator.append(d.toString());
+  });
+
+  proc.stderr.on('data', (d) => {
+    paginator.append(`[stderr]${d.toString()}`);
+  });
+
+  proc.on('close', (code) => {
+    clearTimeout(timeout);
+    paginator.append(`\n[status] process exited with code ${code}`);
+    paginator.markProcessKilled();
+  });
+
+  proc.on('error', (err) => {
+    clearTimeout(timeout);
+    paginator.append(`\n[error]\n${String(err)}`);
+    paginator.markProcessKilled();
+  });
 };
+
+function kill(proc: ReturnType<typeof spawn>) {
+  if (process.platform === 'win32' && proc.pid) {
+    spawn('powershell', ['-Command', `Stop-Process -Id ${proc.pid} -Force`], { stdio: 'ignore' });
+  } else {
+    proc.kill('SIGINT');
+  }
+}

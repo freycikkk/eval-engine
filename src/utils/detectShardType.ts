@@ -1,6 +1,7 @@
 /** @format */
 
 import { ClusterClient } from 'discord-hybrid-sharding';
+
 import type { Client } from 'discord.js';
 
 export function detectShard(client: Client): {

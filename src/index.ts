@@ -19,7 +19,10 @@ class EvalEngine {
   public owners: Snowflake[];
   public process: NodeJS.Process[];
 
-  constructor(public client: Client, public options: EvalEngineOptions) {
+  constructor(
+    public client: Client,
+    public options: EvalEngineOptions
+  ) {
     if (!(client instanceof Client))
       throw new TypeError('[ EvalEngine ] Client must be an instance of Discord.js Client');
     if (!Array.isArray(options.owners)) throw new TypeError('[ EvalEngine ] Owners must be an array of Snowflake IDs');

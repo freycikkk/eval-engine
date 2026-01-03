@@ -3,21 +3,13 @@
 import { TextReport } from '../class/TextReport.js';
 import pkg from '../../package.json' with { type: 'json' };
 import { DateFormatting } from '../utils/DateFormatting.js';
-import {
-  GatewayIntentBits,
-  IntentsBitField,
-  version as djsVersion
-} from 'discord.js';
+import { GatewayIntentBits, IntentsBitField, version as djsVersion } from 'discord.js';
 
 import type { Client } from 'discord.js';
 import type { Context } from '../interface/Context.js';
 import type { EngineClient } from '../interface/EngineClient.js';
 
-const INTENTS = [
-  GatewayIntentBits.GuildPresences,
-  GatewayIntentBits.GuildMembers,
-  GatewayIntentBits.MessageContent
-];
+const INTENTS = [GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent];
 
 export const Default = async (client: Client, ctx: Context) => {
   const { message } = ctx;
@@ -44,14 +36,15 @@ export const Default = async (client: Client, ctx: Context) => {
   const cpuSys = (cpu.system / 1000).toFixed(1);
 
   const shardType = meta?.cluster ? 'Hybrid' : client.shard ? 'DJS' : 'None';
-  const shardCount = meta?.shardType === 'none' ? '1 (Single Shard By Default)' : String(client.options.shardCount ?? 1);
+  const shardCount =
+    meta?.shardType === 'none' ? '1 (Single Shard By Default)' : String(client.options.shardCount ?? 1);
 
   let globalGuilds: number | null = null;
   let globalUsers: number | null = null;
 
   try {
     if (meta?.cluster) {
-      const results = await meta.cluster.broadcastEval(c => ({
+      const results = await meta.cluster.broadcastEval((c) => ({
         guilds: c.guilds.cache.size,
         users: c.users.cache.size
       }));
@@ -59,7 +52,7 @@ export const Default = async (client: Client, ctx: Context) => {
       globalGuilds = results.reduce((a, b) => a + b.guilds, 0);
       globalUsers = results.reduce((a, b) => a + b.users, 0);
     } else if (client.shard) {
-      const results = await client.shard.broadcastEval(c => ({
+      const results = await client.shard.broadcastEval((c) => ({
         guilds: c.guilds.cache.size,
         users: c.users.cache.size
       }));
@@ -67,14 +60,11 @@ export const Default = async (client: Client, ctx: Context) => {
       globalGuilds = results.reduce((a, b) => a + b.guilds, 0);
       globalUsers = results.reduce((a, b) => a + b.users, 0);
     }
-  } catch {
-  }
+  } catch {}
 
-  const intentInfo = INTENTS
-    .map(
-      i => `${GatewayIntentBits[i]}:${intents.has(i) ? ' Enabled' : ' Disabled'}`
-    )
-    .join(' | ');
+  const intentInfo = INTENTS.map((i) => `${GatewayIntentBits[i]}:${intents.has(i) ? ' Enabled' : ' Disabled'}`).join(
+    ' | '
+  );
 
   const report = new TextReport()
     .line(`EvalEngine v${version}`)
@@ -87,9 +77,7 @@ export const Default = async (client: Client, ctx: Context) => {
     .line(`WS Ping: ${client.ws.ping} ms`)
     .blank()
 
-    .line(
-      `Memory: ${rss} MB RSS | Heap ${heapUsed}/${heapTotal} MB (${heapPct}%)`
-    )
+    .line(`Memory: ${rss} MB RSS | Heap ${heapUsed}/${heapTotal} MB (${heapPct}%)`)
     .line(`CPU: ${cpuUser} ms user | ${cpuSys} ms sys`)
     .blank()
 
@@ -103,9 +91,7 @@ export const Default = async (client: Client, ctx: Context) => {
         : `Guilds: ${client.guilds.cache.size} (local cache)`
     )
     .line(
-      globalUsers !== null
-        ? `Users: ${globalUsers} (global cache)`
-        : `Users: ${client.users.cache.size} (local cache)`
+      globalUsers !== null ? `Users: ${globalUsers} (global cache)` : `Users: ${client.users.cache.size} (local cache)`
     )
     .blank()
 
