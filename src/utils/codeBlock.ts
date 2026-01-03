@@ -2,7 +2,7 @@
 
 export class CodeBlock {
   static construct(content: string, lang?: string) {
-    const language: string = lang ?? '';
+    const language = lang ?? '';
     const safeContent = content.replaceAll('```', '\\`\\`\\`');
     return ['```' + language, safeContent, '```'].join('\n');
   }
@@ -11,7 +11,7 @@ export class CodeBlock {
     const match = input.match(/^```(\w+)?\n([\s\S]*?)\n```$/);
     if (!match) return null;
 
-    const lang: string = match[1] ?? '';
+    const lang = match[1] ?? '';
     const content = match[2];
 
     return { lang, content };

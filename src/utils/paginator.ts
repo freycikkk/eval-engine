@@ -40,12 +40,12 @@ export class Paginator {
     return this.lang === 'sh';
   }
 
-  private split(): void {
+  private split() {
     const text = this.content || ' ';
     this.pages = text.length <= this.limit ? [text] : text.match(new RegExp(`.{1,${this.limit}}`, 'gs')) || [' '];
   }
 
-  private format(): string {
+  private format() {
     if (this.streaming) this.split();
 
     const body = this.pages[this.index] ?? '';

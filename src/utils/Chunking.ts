@@ -2,7 +2,7 @@
 
 const MAX_PAGE_SIZE = 1900;
 
-export function Chunking(text: string): string[] {
+export function Chunking(text: string) {
   if (!text) return [''];
 
   const lines = text.replace(/\r\n/g, '\n').split('\n');

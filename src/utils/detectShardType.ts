@@ -3,7 +3,7 @@
 import { ClusterClient } from 'discord-hybrid-sharding';
 import type { Client } from 'discord.js';
 
-function findClusterClient(obj: unknown): ClusterClient<Client> | undefined {
+function findClusterClient(obj: unknown) {
   if (obj === null || typeof obj !== 'object') return;
   for (const value of Object.values(obj as Record<string, unknown>)) {
     if (value instanceof ClusterClient) return value as ClusterClient<Client>;
