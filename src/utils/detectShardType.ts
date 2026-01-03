@@ -1,24 +1,24 @@
 /** @format */
 
 import { ClusterClient } from 'discord-hybrid-sharding';
-
 import type { Client } from 'discord.js';
+
+function findClusterClient(obj: unknown): ClusterClient<Client> | undefined {
+  if (!obj || typeof obj !== 'object') return;
+
+  for (const value of Object.values(obj as Record<string, unknown>)) {
+    if (value instanceof ClusterClient) return value as ClusterClient<Client>;
+  }
+
+  return;
+}
 
 export function detectShard(client: Client): {
   shardType: 'hybrid' | 'djs' | 'none';
   cluster?: ClusterClient<Client>;
 } {
-  const anyClient = client as any;
-  if (anyClient.cluster instanceof ClusterClient) return { shardType: 'hybrid', cluster: anyClient.cluster };
-
-  if (
-    anyClient.cluster &&
-    typeof anyClient.cluster.send === 'function' &&
-    typeof anyClient.cluster.broadcastEval === 'function' &&
-    typeof anyClient.cluster.fetchClientValues === 'function'
-  )
-    return { shardType: 'hybrid', cluster: anyClient.cluster };
-
+  const cluster = findClusterClient(client as any);
+  if (cluster) return { shardType: 'hybrid', cluster };
   if (client.shard) return { shardType: 'djs' };
   return { shardType: 'none' };
 }
