@@ -9,7 +9,7 @@ import type { Context } from '../interface/Context.js';
 
 const HARD_TIMEOUT = 60_000;
 
-export const shell = async (_client: Client, rawCode: string | undefined, ctx: Context) => {
+export const shell = async (_client: Client, ctx: Context, rawCode: string | undefined) => {
   const { message } = ctx;
 
   if (!rawCode) {

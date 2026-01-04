@@ -1,6 +1,8 @@
 /** @format */
 
+import { ShardClientUtil } from 'discord.js';
 import { ClusterClient } from 'discord-hybrid-sharding';
+
 import type { Client } from 'discord.js';
 
 function findClusterClient(obj: unknown) {
@@ -17,6 +19,6 @@ export function detectShard(client: Client): {
 } {
   const cluster = findClusterClient(client);
   if (cluster) return { shardType: 'hybrid', cluster };
-  if (client.shard) return { shardType: 'djs' };
+  if (client.shard instanceof ShardClientUtil) return { shardType: 'djs' };
   return { shardType: 'none' };
 }

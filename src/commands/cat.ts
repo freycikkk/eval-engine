@@ -12,7 +12,7 @@ import type { Context } from '../interface/Context.js';
 
 const BASE_DIR = process.cwd();
 
-export const cat = async (client: Client, filePath: string | undefined, ctx: Context) => {
+export const cat = async (client: Client, ctx: Context, filePath: string | undefined) => {
   const { message } = ctx;
 
   if (!filePath) {

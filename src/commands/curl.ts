@@ -10,7 +10,7 @@ import type { Context } from '../interface/Context.js';
 
 const MAX_BYTES = 1_000_000;
 
-export const curl = async (client: Client, input: string | undefined, ctx: Context) => {
+export const curl = async (client: Client, ctx: Context, input: string | undefined) => {
   const { message } = ctx;
 
   if (!input) {

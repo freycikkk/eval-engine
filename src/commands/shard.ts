@@ -10,7 +10,7 @@ import type { Client } from 'discord.js';
 import type { Context } from '../interface/Context.js';
 import type { EngineClient } from '../interface/EngineClient.js';
 
-export const shard = async (client: Client, rawCode: string | undefined, ctx: Context) => {
+export const shard = async (client: Client, ctx: Context, rawCode: string | undefined) => {
   const { message } = ctx;
 
   if (!rawCode) {

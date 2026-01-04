@@ -9,7 +9,7 @@ import { Paginator } from '../utils/paginator.js';
 import type { Client } from 'discord.js';
 import type { Context } from '../interface/Context.js';
 
-export const js = async (client: Client, rawCode: string | undefined, ctx: Context) => {
+export const js = async (client: Client, ctx: Context, rawCode: string | undefined) => {
   const { message } = ctx;
 
   if (!rawCode) {
