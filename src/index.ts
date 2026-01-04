@@ -1,6 +1,6 @@
 /** @format */
 
-import { Client } from 'discord.js';
+import { Client, Events } from 'discord.js';
 import { js } from './commands/js.js';
 import { rtt } from './commands/rtt.js';
 import { cat } from './commands/cat.js';
@@ -34,7 +34,7 @@ class EvalEngine {
     this.owners = options.owners;
     this.process = [process];
     if (client.isReady()) this.options.secrets?.push(client.token);
-    else client.once('ready', (c) => this.options.secrets?.push(c.token));
+    else client.once(Events.ClientReady, (c) => this.options.secrets?.push(c.token));
   }
 
   public async run(message: Message) {
