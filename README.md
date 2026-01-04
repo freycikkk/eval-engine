@@ -12,7 +12,7 @@ EvalEngine is a multi-purpose runtime tool designed for **live debugging**, **co
 
 Run multiple execution engines through a single command:
 
-- **JavaScript**: eval & inspect
+- **JavaScript**: eval your js code
 - **Shell**: PowerShell / Bash / Zsh execution
 - **Network**: Curl requests & RTT checks
 - **Utility**: File inspection (`cat`) and Shard/Cluster inspection
