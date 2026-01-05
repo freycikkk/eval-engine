@@ -18,9 +18,9 @@ export const rtt = async (client: Client, ctx: Context) => {
 
     if (latency !== null) {
       latencies.push(latency);
-      output += `\nReading ${i}: ${latency}ms`;
+      output += `\nReading ${i + 1}: ${latency}ms`;
     } else {
-      output += `\nReading ${i}: Failed`;
+      output += `\nReading ${i + 1}: Failed`;
     }
 
     if (i < 4) {

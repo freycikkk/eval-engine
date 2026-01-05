@@ -53,7 +53,7 @@ class EvalEngine {
     const input = parts.join(' ');
 
     if (!command || !this.options.aliases?.includes(command)) return;
-    const ctx = { message, secrets: this.options.secrets! };
+    const ctx = { message, secrets: this.options.secrets };
 
     if (!engine) {
       await Default(this.client, ctx);

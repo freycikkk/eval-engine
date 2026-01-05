@@ -49,11 +49,11 @@ export const shell = async (_client: Client, ctx: Context, rawCode: string | und
     kill(proc);
   }, HARD_TIMEOUT);
 
-  proc.stdout.on('data', (d) => {
+  proc.stdout.on('data', (d: Buffer) => {
     paginator.append(d.toString());
   });
 
-  proc.stderr.on('data', (d) => {
+  proc.stderr.on('data', (d: Buffer) => {
     paginator.append(`[stderr]${d.toString()}`);
   });
 
