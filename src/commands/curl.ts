@@ -38,7 +38,7 @@ export const curl = async (client: Client, ctx: Context, input: string | undefin
       return;
     }
 
-    const res = await globalThis.fetch(url.toString());
+    const res = await fetch(url.toString());
 
     if (!res.ok) {
       await message.reply(`[ EvalEngine ] HTTP ${res.status}: ${res.statusText}`);

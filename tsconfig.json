@@ -37,7 +37,7 @@
     "alwaysStrict": true,
     "target": "esnext",
     "useDefineForClassFields": true,
-    "useUnknownInCatchVariables": false,
+    "useUnknownInCatchVariables": true,
     "skipLibCheck": true
   },
   "exclude": ["dist", "node_modules"]

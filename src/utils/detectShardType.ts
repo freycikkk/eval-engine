@@ -5,11 +5,19 @@ import { ClusterClient } from 'discord-hybrid-sharding';
 
 import type { Client } from 'discord.js';
 
-function findClusterClient(obj: unknown) {
+function findClusterClient(obj: unknown, visited = new WeakSet<object>()): ClusterClient<Client> | undefined {
   if (obj === null || typeof obj !== 'object') return;
+
+  if (visited.has(obj)) return;
+  visited.add(obj);
+
+  if (obj instanceof ClusterClient) return obj as ClusterClient<Client>;
+
   for (const value of Object.values(obj as Record<string, unknown>)) {
-    if (value instanceof ClusterClient) return value as ClusterClient<Client>;
+    const found = findClusterClient(value, visited);
+    if (found) return found;
   }
+
   return;
 }
 
